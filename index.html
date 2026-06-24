@@ -1,0 +1,126 @@
+<html>
+
+<head>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Noto+Sans+JP:wght@100..900&display=swap');
+        .marqbox {
+            border: double;
+        }
+
+        #yes {
+            /* Applies Comic Sans to the entire website */
+            font-family: 'Noto Sans JP' ,system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 66.525vh;
+            font-weight: bold;
+            color:blue;
+            background:black;
+        }
+        ruby rt {font-size:3.333vh}
+    </style>
+</head>
+
+<body>
+    <div class="marqbox">
+    <marquee scrollamount="55" id="yes"></marquee>
+</div>
+
+<script>
+const ticker = document.getElementById("yes");
+
+async function loadNews() {
+
+    try {
+
+        const response = await fetch(
+            "https://ok.surf/api/v1/cors/news-feed"
+        );
+
+        const data = await response.json();
+
+        let headlines = [];
+
+        for (const category in data) {
+
+            if (!Array.isArray(data[category]))
+                continue;
+
+            for (const article of data[category]) {
+
+                if (!article.title || !article.source)
+                    continue;
+
+                headlines.push(
+                    `(${article.source.toUpperCase()}) ${article.title.toUpperCase()}`
+                );
+
+            }
+
+        }
+
+        // remove duplicates
+        headlines = [...new Set(headlines)];
+
+        // mix categories
+        headlines.sort(() => Math.random() - 0.5);
+
+        // repeat each story twice
+        let line = headlines
+            .map(h => `${h} ◆ ${h}`)
+            .join(" ✦ ");
+
+        // repeat whole feed 5 times
+        ticker.innerHTML =
+            Array(5)
+                .fill(line)
+                .join(" ✦ ");
+
+        // Calculate how long the text takes to pass
+        const chars = ticker.innerText.length;
+
+        // estimate pixels occupied by text
+        const pxPerChar = 18;
+
+        const width = chars * pxPerChar;
+
+        // marquee speed approximation
+        const pxPerSecond = 200;
+
+        const seconds = width / pxPerSecond;
+
+        console.log(
+            "Estimated cycle:",
+            seconds.toFixed(0),
+            "seconds"
+        );
+
+        // refresh before reaching the end
+        clearTimeout(window.nextNewsUpdate);
+
+        window.nextNewsUpdate =
+            setTimeout(
+                loadNews,
+                Math.max(
+                    (seconds - 30) * 1000,
+                    60000
+                )
+            );
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        ticker.innerHTML =
+            "(SYSTEM) NEWS API IS OFFLINE, RETRYING IN A FEW..";
+
+        setTimeout(loadNews, 60000);
+
+    }
+
+}
+
+loadNews();</script>
+</body>
+
+</html>
