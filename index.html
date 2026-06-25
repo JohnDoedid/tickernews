@@ -2,125 +2,583 @@
 
 <head>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Noto+Sans+JP:wght@100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Noto+Sans+JP:wght@100..900&display=swap');
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: black;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
         .marqbox {
             border: double;
+            display: none;
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
         }
 
         #yes {
-            /* Applies Comic Sans to the entire website */
-            font-family: 'Noto Sans JP' ,system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-size: 66.525vh;
             font-weight: bold;
-            color:blue;
-            background:black;
+            color: blue;
+            background: black;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
         }
-        ruby rt {font-size:3.333vh}
+
+    
+        #editor-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            font-family: 'Noto Sans JP', sans-serif;
+            padding: 20px;
+            user-select: none;
+        }
+
+        #editor-overlay h2 {
+            color: #eee;
+            font-weight: 300;
+            font-size: 3rem;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(0, 100, 255, 0.3);
+        }
+
+        #pattern-editor {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: #1a1a1a;
+            padding: 20px 30px;
+            border-radius: 60px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            max-width: 90vw;
+        }
+
+        #chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            max-height: 60vh;
+            overflow-y: auto;
+            min-height: 52px;
+            min-width: 100px;
+            padding: 8px 12px;
+            background: #222;
+            border-radius: 16px;
+            border: 1px solid #444;
+        }
+
+        /* yummy chips */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #888;
+            color: #111;
+            font-weight: bold;
+            font-size: 1.6rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            transition: background 0.15s, border-color 0.15s, transform 0.1s;
+            min-width: 48px;
+            height: 52px;
+            position: relative;
+        }
+
+        .chip:active {
+            cursor: grabbing;
+        }
+
+        .chip.dragging {
+            opacity: 0.5;
+            border-color: #00aaff;
+            background: #aaa;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .chip.drag-over {
+            border-color: #00aaff;
+            background: #aaa;
+        }
+
+        .chip .delete-chip {
+            color: #ff4444;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+            transition: color 0.15s;
+            margin-left: 4px;
+        }
+
+        .chip .delete-chip:hover {
+            color: #ff8888;
+        }
+
+        #add-chip {
+            background: #2a2a2a;
+            color: #ccc;
+            border: 1px solid #555;
+            border-radius: 8px;
+            width: 52px;
+            height: 52px;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+
+        #add-chip:hover {
+            background: #3a3a3a;
+            border-color: #888;
+        }
+
+        #apply-pattern {
+            background: #1a6fb0;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 14px 40px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            font-family: 'Noto Sans JP', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 20px rgba(0, 80, 200, 0.5);
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+
+        #apply-pattern:hover {
+            background: #2288dd;
+        }
+
+        #apply-pattern:active {
+            transform: scale(0.95);
+        }
+
+        .editor-note {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 16px;
+            letter-spacing: 1px;
+        }
+
+        .editor-note kbd {
+            background: #222;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #aaa;
+            border: 1px solid #444;
+        }
+
+        /* hide marquee initially */
+        .marqbox {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
+
+    
+    <div id="editor-overlay">
+        <h2>welcome to da ticker news</h2>
+        <div id="pattern-editor">
+            <div id="chip-container">
+                <!-- chips are rendered by js -->
+            </div>
+            <button id="add-chip" title="Add a custom letter (duplicates allowed)">+</button>
+            <button id="apply-pattern">▶ Ticker!</button>
+        </div>
+        <div class="editor-note">
+            <kbd>✕</kbd> delete · <kbd>drag</kbd> reorder · <kbd>hold ½s</kbd> edit letter · <strong>duplicates allowed</strong>
+        </div>
+    </div>
+
+
     <div class="marqbox">
-    <marquee scrollamount="55" id="yes"></marquee>
-</div>
+        <marquee scrollamount="55" id="yes"></marquee>
+    </div>
 
-<script>
-const ticker = document.getElementById("yes");
+    <script>
+    
+        let patternLetters = ['a', 'b']; // default
+        let currentPattern = 'ab';
+        let tickerStarted = false;
 
-async function loadNews() {
+    
+        let dragState = {
+            index: null,
+            element: null,
+            startX: 0,
+            startY: 0,
+            isDragging: false,
+            holdTimer: null,
+            isHold: false,
+            targetIndex: null,
+            targetElement: null
+        };
 
-    try {
+    
+        function applyPattern(headlines, pattern) {
+            if (!pattern || pattern.length === 0) return headlines;
+            const letters = pattern.split('');
+            const uniqueLetters = [...new Set(letters)];
+            const batchSize = uniqueLetters.length;
+            const result = [];
 
-        const response = await fetch(
-            "https://ok.surf/api/v1/cors/news-feed"
-        );
-
-        const data = await response.json();
-
-        let headlines = [];
-
-        for (const category in data) {
-
-            if (!Array.isArray(data[category]))
-                continue;
-
-            for (const article of data[category]) {
-
-                if (!article.title || !article.source)
+            for (let i = 0; i < headlines.length; i += batchSize) {
+                const batch = headlines.slice(i, i + batchSize);
+                const m = batch.length;
+                
+                const reducedPattern = letters.filter(ch => {
+                    const idx = ch.charCodeAt(0) - 97;
+                    return idx < m;
+                });
+                if (reducedPattern.length === 0) {
+                    result.push(...batch);
                     continue;
-
-                headlines.push(
-                    `(${article.source.toUpperCase()}) ${article.title.toUpperCase()}`
-                );
-
+                }
+                for (const ch of reducedPattern) {
+                    const idx = ch.charCodeAt(0) - 97;
+                    result.push(batch[idx]);
+                }
             }
-
+            return result;
         }
 
-        // remove duplicates
-        headlines = [...new Set(headlines)];
+    
+        function updatePatternString() {
+            currentPattern = patternLetters.join('');
+            try {
+                localStorage.setItem('tickernews_pattern', currentPattern);
+            } catch (_) {}
+        }
 
-        // mix categories
-        headlines.sort(() => Math.random() - 0.5);
+        function renderPatternEditor() {
+            const container = document.getElementById('chip-container');
+            container.innerHTML = '';
 
-        // repeat each story twice
-        let line = headlines
-            .map(h => `${h} ◆ ${h}`)
-            .join(" ✦ ");
+            patternLetters.forEach((letter, idx) => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.dataset.index = idx;
+                chip.textContent = letter;
 
-        // repeat whole feed 5 times
-        ticker.innerHTML =
-            Array(5)
-                .fill(line)
-                .join(" ✦ ");
+                // Delete button 
+                const del = document.createElement('span');
+                del.className = 'delete-chip';
+                del.textContent = '×';
+                del.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (patternLetters.length <= 1) return; // keep at least 1
+                    patternLetters.splice(idx, 1);
+                    updatePatternString();
+                    renderPatternEditor();
+                });
+                chip.appendChild(del);
 
-        // Calculate how long the text takes to pass
-        const chars = ticker.innerText.length;
+                
+                chip.addEventListener('pointerdown', (e) => {
+                    if (e.button !== 0) return;
+                    const target = e.currentTarget;
+                    const index = parseInt(target.dataset.index);
 
-        // estimate pixels occupied by text
-        const pxPerChar = 18;
+                    dragState.index = index;
+                    dragState.element = target;
+                    dragState.startX = e.clientX;
+                    dragState.startY = e.clientY;
+                    dragState.isDragging = false;
+                    dragState.isHold = false;
+                    dragState.targetIndex = null;
+                    dragState.targetElement = null;
 
-        const width = chars * pxPerChar;
+                
+                    dragState.holdTimer = setTimeout(() => {
+                        if (!dragState.isDragging) {
+                            dragState.isHold = true;
+                            editChip(index);
+                        
+                            dragState.element = null;
+                            dragState.index = null;
+                            clearTimeout(dragState.holdTimer);
+                        }
+                    }, 500);
 
-        // marquee speed approximation
-        const pxPerSecond = 200;
+                    e.preventDefault();
+                });
 
-        const seconds = width / pxPerSecond;
+                container.appendChild(chip);
+            });
 
-        console.log(
-            "Estimated cycle:",
-            seconds.toFixed(0),
-            "seconds"
-        );
+    
+            document.getElementById('add-chip').disabled = false;
+            updatePatternString();
+        }
 
-        // refresh before reaching the end
-        clearTimeout(window.nextNewsUpdate);
 
-        window.nextNewsUpdate =
-            setTimeout(
-                loadNews,
-                Math.max(
-                    (seconds - 30) * 1000,
-                    60000
-                )
+        function editChip(index) {
+            const oldLetter = patternLetters[index];
+            const newLetter = prompt(
+                `Change letter "${oldLetter}" to which letter (a‑z)?`,
+                oldLetter
             );
+            if (newLetter === null) return; // cancelled
 
-    }
+            const trimmed = newLetter.trim().toLowerCase();
+            if (!trimmed || trimmed.length === 0) return;
 
-    catch (err) {
+            const char = trimmed[0];
+            if (char < 'a' || char > 'z') {
+                alert('Please enter a letter from a to z.');
+                return;
+            }
 
-        console.error(err);
+        
+            patternLetters[index] = char;
+            updatePatternString();
+            renderPatternEditor();
+        }
 
-        ticker.innerHTML =
-            "(SYSTEM) NEWS API IS OFFLINE, RETRYING IN A FEW..";
+    
+        document.addEventListener('pointermove', (e) => {
+            if (dragState.element === null || dragState.index === null) return;
 
-        setTimeout(loadNews, 60000);
+            const dx = e.clientX - dragState.startX;
+            const dy = e.clientY - dragState.startY;
+            if (Math.sqrt(dx * dx + dy * dy) > 6) {
+                if (!dragState.isDragging) {
+                    dragState.isDragging = true;
+                    clearTimeout(dragState.holdTimer);
+                    dragState.element.classList.add('dragging');
+                }
+                const elements = document.elementsFromPoint(e.clientX, e.clientY);
+                let targetChip = null;
+                for (const el of elements) {
+                    if (el.classList && el.classList.contains('chip') && el !== dragState.element) {
+                        targetChip = el;
+                        break;
+                    }
+                }
 
-    }
+                if (dragState.targetElement && dragState.targetElement !== targetChip) {
+                    dragState.targetElement.classList.remove('drag-over');
+                }
 
-}
+                if (targetChip) {
+                    targetChip.classList.add('drag-over');
+                    dragState.targetElement = targetChip;
+                    dragState.targetIndex = parseInt(targetChip.dataset.index);
+                } else {
+                    dragState.targetElement = null;
+                    dragState.targetIndex = null;
+                }
+            }
+        });
 
-loadNews();</script>
+        document.addEventListener('pointerup', (e) => {
+            if (dragState.element === null || dragState.index === null) {
+                document.querySelectorAll('.chip.drag-over').forEach(el => el.classList.remove('drag-over'));
+                dragState.isDragging = false;
+                return;
+            }
+
+            clearTimeout(dragState.holdTimer);
+            dragState.element.classList.remove('dragging');
+
+            if (dragState.isDragging && dragState.targetIndex !== null && dragState.targetIndex !== dragState.index) {
+                const from = dragState.index;
+                const to = dragState.targetIndex;
+                const [removed] = patternLetters.splice(from, 1);
+                patternLetters.splice(to, 0, removed);
+                updatePatternString();
+                renderPatternEditor();
+            }
+
+            document.querySelectorAll('.chip.drag-over').forEach(el => el.classList.remove('drag-over'));
+            dragState.element = null;
+            dragState.index = null;
+            dragState.isDragging = false;
+            dragState.targetIndex = null;
+            dragState.targetElement = null;
+        });
+
+
+        function addChip() {
+            let char = prompt('Enter a new letter (a‑z), or cancel to auto‑add:', '');
+            if (char === null) {
+                
+                let maxChar = 'a';
+                for (const ch of patternLetters) {
+                    if (ch > maxChar) maxChar = ch;
+                }
+                let nextChar = String.fromCharCode(maxChar.charCodeAt(0) + 1);
+                if (nextChar > 'z') nextChar = 'a'; // wrap around
+                char = nextChar;
+            } else {
+                char = char.trim().toLowerCase();
+                if (!char || char.length === 0) {
+                    // Auto‑add if blank
+                    let maxChar = 'a';
+                    for (const ch of patternLetters) {
+                        if (ch > maxChar) maxChar = ch;
+                    }
+                    let nextChar = String.fromCharCode(maxChar.charCodeAt(0) + 1);
+                    if (nextChar > 'z') nextChar = 'a';
+                    char = nextChar;
+                } else {
+                    char = char[0];
+                    if (char < 'a' || char > 'z') {
+                        alert('Only letters a‑z are allowed.');
+                        return;
+                    }
+                
+                }
+            }
+
+            patternLetters.push(char);
+            updatePatternString();
+            renderPatternEditor();
+        }
+
+        
+        const ticker = document.getElementById("yes");
+
+        async function loadNews() {
+            try {
+                const response = await fetch(
+                    "https://ok.surf/api/v1/cors/news-feed"
+                );
+
+                const data = await response.json();
+
+                let headlines = [];
+
+                for (const category in data) {
+                    if (!Array.isArray(data[category])) continue;
+                    for (const article of data[category]) {
+                        if (!article.title || !article.source) continue;
+                        headlines.push(
+                            `(${article.source.toUpperCase()}) ${article.title.toUpperCase()}`
+                        );
+                    }
+                }
+
+                headlines = [...new Set(headlines)];
+                headlines.sort(() => Math.random() - 0.5);
+
+                
+                headlines = applyPattern(headlines, currentPattern);
+
+                let line = headlines
+                    .map(h => `${h} ◆ ${h}`)
+                    .join(" ✦ ");
+
+                ticker.innerHTML =
+                    Array(5)
+                    .fill(line)
+                    .join(" ✦ ");
+
+                const chars = ticker.innerText.length;
+                const pxPerChar = 18;
+                const width = chars * pxPerChar;
+                const pxPerSecond = 200;
+                const seconds = width / pxPerSecond;
+
+                console.log(
+                    "Estimated cycle:",
+                    seconds.toFixed(0),
+                    "seconds"
+                );
+
+                clearTimeout(window.nextNewsUpdate);
+                window.nextNewsUpdate =
+                    setTimeout(
+                        loadNews,
+                        Math.max(
+                            (seconds - 30) * 1000,
+                            60000
+                        )
+                    );
+
+            } catch (err) {
+                console.error(err);
+                ticker.innerHTML =
+                    "(SYSTEM) NEWS API IS OFFLINE, RETRYING IN A FEW..";
+                setTimeout(loadNews, 60000);
+            }
+        }
+
+        
+        function startTicker() {
+            if (tickerStarted) return;
+            tickerStarted = true;
+
+            document.getElementById('editor-overlay').style.display = 'none';
+            document.querySelector('.marqbox').style.display = 'block';
+
+            loadNews();
+        }
+
+    
+        try {
+            const saved = localStorage.getItem('tickernews_pattern');
+            if (saved && saved.length > 0) {
+                
+                const cleaned = saved.split('').filter(ch => ch >= 'a' && ch <= 'z');
+                if (cleaned.length > 0) {
+                    patternLetters = cleaned;
+                }
+            }
+        } catch (_) {}
+
+        renderPatternEditor();
+
+        document.getElementById('add-chip').addEventListener('click', addChip);
+        document.getElementById('apply-pattern').addEventListener('click', startTicker);
+    </script>
+
 </body>
 
 </html>
